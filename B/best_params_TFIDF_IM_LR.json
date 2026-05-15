@@ -1,0 +1,15 @@
+{
+  "clf__C": 7.109741526658277,
+  "clf__class_weight": null,
+  "clf__max_iter": 11340,
+  "clf__solver": "saga",
+  "features__text__tfidf__analyzer": "char_wb",
+  "features__text__tfidf__max_df": 0.95,
+  "features__text__tfidf__max_features": 74355,
+  "features__text__tfidf__min_df": 17,
+  "features__text__tfidf__ngram_range": [
+    1,
+    3
+  ],
+  "features__text__tfidf__sublinear_tf": true
+}

@@ -1,0 +1,17 @@
+{
+  "data_dir": "/heron101/datasets",
+  "output_dir": "/heron101/results",
+  "model_name": "docling-layout-heron-101",
+  "image_size": "640",
+  "epochs": "50",
+  "patience": "10",
+  "batch_size": "4",
+  "grad_accum": "4",
+  "lr": "5e-05",
+  "backbone_lr": "5e-06",
+  "weight_decay": "0.0001",
+  "warmup_steps": "200",
+  "eval_every": "1",
+  "freeze_backbone": "False",
+  "seed": "42"
+}
