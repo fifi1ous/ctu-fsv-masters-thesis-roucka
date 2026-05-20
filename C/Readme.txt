@@ -1,0 +1,1 @@
+First, download the site-packages via the "install_packages.bat" in the python-embed folder
