@@ -159,19 +159,28 @@ if(WIN32)
         # Get the Python DLL directory
         get_filename_component(Python_DLL_DIR "${Python_RUNTIME_LIBRARY_DIRS}" ABSOLUTE)
 
-        # --- Add custom command to deploy Qt and sync Python + scripts + models (incremental) ----
         add_custom_command(TARGET Control_GP_Odevzdani POST_BUILD
-          COMMAND "${WINDEPLOYQT_EXECUTABLE}" --verbose 0 --no-compiler-runtime "$<TARGET_FILE:Control_GP_Odevzdani>"
-          COMMAND ${CMAKE_COMMAND} -E copy_if_different
-                        ${PYTHON_DLLS}
-                        "$<TARGET_FILE_DIR:Control_GP_Odevzdani>/"
-          # --- Incremental sync: only copies changed files via robocopy /MIR ----
-          # --- Sync Python + scripts + models (incremental) ----
-          COMMAND ${CMAKE_COMMAND} -DSRC="${CMAKE_CURRENT_SOURCE_DIR}/python" -DDST="$<TARGET_FILE_DIR:Control_GP_Odevzdani>/python" -P "${CMAKE_CURRENT_SOURCE_DIR}/sync_dir.cmake"
-          COMMAND ${CMAKE_COMMAND} -DSRC="${CMAKE_CURRENT_SOURCE_DIR}/scripts" -DDST="$<TARGET_FILE_DIR:Control_GP_Odevzdani>/scripts" -P "${CMAKE_CURRENT_SOURCE_DIR}/sync_dir.cmake"
-          COMMAND ${CMAKE_COMMAND} -DSRC="${CMAKE_CURRENT_SOURCE_DIR}/models" -DDST="$<TARGET_FILE_DIR:Control_GP_Odevzdani>/models" -P "${CMAKE_CURRENT_SOURCE_DIR}/sync_dir.cmake"
-          COMMAND ${CMAKE_COMMAND} -DSRC="${CMAKE_CURRENT_SOURCE_DIR}/workspace" -DDST="$<TARGET_FILE_DIR:Control_GP_Odevzdani>/workspace" -P "${CMAKE_CURRENT_SOURCE_DIR}/sync_dir.cmake"
-          COMMENT "Deploying Qt and syncing Python + scripts + models (incremental)..." 
+            # --- Deploy Qt with VC++ runtime ---
+            COMMAND "${WINDEPLOYQT_EXECUTABLE}" --verbose 1 "$<TARGET_FILE:Control_GP_Odevzdani>"
+
+            # --- Sync embedded Python tree next to exe ---
+            COMMAND ${CMAKE_COMMAND} -DSRC="${CMAKE_CURRENT_SOURCE_DIR}/python-embed" -DDST="$<TARGET_FILE_DIR:Control_GP_Odevzdani>/python-embed" -P "${CMAKE_CURRENT_SOURCE_DIR}/sync_dir.cmake"
+
+            # --- Copy Python DLLs to the exe directory for Windows loader ---
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                "${CMAKE_CURRENT_SOURCE_DIR}/python-embed/python313.dll"
+                "$<TARGET_FILE_DIR:Control_GP_Odevzdani>/"
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                "${CMAKE_CURRENT_SOURCE_DIR}/python-embed/python3.dll"
+                "$<TARGET_FILE_DIR:Control_GP_Odevzdani>/"
+
+            # --- Sync data/code directories ---
+            COMMAND ${CMAKE_COMMAND} -DSRC="${CMAKE_CURRENT_SOURCE_DIR}/poppler" -DDST="$<TARGET_FILE_DIR:Control_GP_Odevzdani>/poppler" -P "${CMAKE_CURRENT_SOURCE_DIR}/sync_dir.cmake"
+            COMMAND ${CMAKE_COMMAND} -DSRC="${CMAKE_CURRENT_SOURCE_DIR}/scripts" -DDST="$<TARGET_FILE_DIR:Control_GP_Odevzdani>/scripts" -P "${CMAKE_CURRENT_SOURCE_DIR}/sync_dir.cmake"
+            COMMAND ${CMAKE_COMMAND} -DSRC="${CMAKE_CURRENT_SOURCE_DIR}/models" -DDST="$<TARGET_FILE_DIR:Control_GP_Odevzdani>/models" -P "${CMAKE_CURRENT_SOURCE_DIR}/sync_dir.cmake"
+            COMMAND ${CMAKE_COMMAND} -DSRC="${CMAKE_CURRENT_SOURCE_DIR}/workspace" -DDST="$<TARGET_FILE_DIR:Control_GP_Odevzdani>/workspace" -P "${CMAKE_CURRENT_SOURCE_DIR}/sync_dir.cmake"
+
+            COMMENT "Deploying Qt + Python + assets..."
         )
     endif()
 endif() # end of if(WIN32)
